@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub → LinkedIn Poster",
+  "version": "1.0.0",
+  "description": "Generates a professional LinkedIn post from your GitHub activity (Khan lang + data science repos) with an AI image, and posts it for you on click.",
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": [
+    "https://api.github.com/*",
+    "https://www.linkedin.com/*",
+    "https://api.groq.com/*",
+    "https://api.mistral.ai/*",
+    "https://api.cerebras.ai/*",
+    "https://image.pollinations.ai/*",
+    "https://text.pollinations.ai/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/feed/*", "https://www.linkedin.com/"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

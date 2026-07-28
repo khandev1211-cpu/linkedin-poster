@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>GitHub → LinkedIn Poster</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>GitHub → LinkedIn</h1>
+      <button id="settingsToggle" class="icon-btn" title="Settings">⚙</button>
+    </header>
+
+    <section id="settingsPanel" class="panel hidden">
+      <label>AI Provider</label>
+      <select id="providerSelect">
+        <option value="groq">Groq (needs key)</option>
+        <option value="cerebras">Cerebras (needs key)</option>
+        <option value="mistral">Mistral (needs key)</option>
+        <option value="pollinations">Pollinations (free, no key)</option>
+      </select>
+
+      <label>API Key</label>
+      <input id="apiKeyInput" type="password" placeholder="Not needed for Pollinations" />
+
+      <button id="saveSettings" class="primary-btn">Save Settings</button>
+      <p id="settingsStatus" class="status"></p>
+    </section>
+
+    <section id="mainPanel" class="panel">
+      <button id="generateBtn" class="primary-btn">Generate Post</button>
+      <p id="generateStatus" class="status"></p>
+
+      <div id="previewArea" class="preview hidden">
+        <label>Post Text (editable)</label>
+        <textarea id="postTextArea" rows="8"></textarea>
+
+        <label>Image Preview</label>
+        <img id="imagePreview" alt="Generated image preview" />
+
+        <div class="button-row">
+          <button id="regenerateBtn" class="secondary-btn">Regenerate</button>
+          <button id="postBtn" class="primary-btn">Open on LinkedIn & Fill</button>
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="autoSubmitCheckbox" />
+          Auto-click final "Post" button (otherwise I'll review before posting)
+        </label>
+        <p id="postStatus" class="status"></p>
+      </div>
+    </section>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
