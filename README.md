@@ -17,11 +17,17 @@ review before posting.
 ## First use
 
 1. Click the extension icon → gear icon (⚙) to open Settings
-2. Pick an AI provider:
-   - **Pollinations** — works immediately, no key needed, lower quality text
-   - **Groq / Cerebras / Mistral** — paste your API key for better writing quality
-3. Click "Save Settings"
-4. Click "Generate Post" — wait a few seconds
+2. **Post text**: pick a provider (Groq recommended) and paste its API key
+   - Groq: console.groq.com → API Keys
+   - Mistral: console.mistral.ai → API Keys
+   - Cerebras: cloud.cerebras.ai → API Keys
+3. **Image**: paste a free Hugging Face access token
+   - Create one at huggingface.co/settings/tokens — "read" scope is enough,
+     no payment info required
+4. Click "Save Settings"
+5. Click "Generate Post" — wait a few seconds (first image call may take
+   10-30s if the model needs to "wake up" on Hugging Face's side; the
+   extension retries automatically)
 5. Review/edit the text and image in the preview
 6. Click "Open on LinkedIn & Fill" — it opens/switches to a LinkedIn tab
    and fills the composer automatically
@@ -50,9 +56,13 @@ Both feed into a single AI prompt that writes one post covering both.
   Fine for occasional manual use; if you hit it, wait an hour or add a
   GitHub personal access token to `github.js` (`Authorization: token ...`
   header) for a much higher limit.
-- **Pollinations anonymous rate limit**: 1 request per 15 seconds. The
-  Generate/Regenerate buttons are disabled while a request is in flight,
-  so normal clicking won't hit this.
+- **Hugging Face cold starts**: if the image model hasn't been used
+  recently, the first call can return a 503 while it loads. The extension
+  retries up to 4 times with a short wait automatically — if it still
+  fails, just click Regenerate a few seconds later.
+- **Pollinations text API is no longer usable free**: they added a Pollen
+  credit/billing system (402 errors on the free tier), which is why this
+  extension uses Groq/Mistral/Cerebras for text instead.
 - **You must be logged into LinkedIn** in the browser when you click
   "Open on LinkedIn & Fill" — there is no headless/background posting;
   you decided against needing Chrome to be closed, so this is expected

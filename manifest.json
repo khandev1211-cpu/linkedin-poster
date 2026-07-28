@@ -10,8 +10,7 @@
     "https://api.groq.com/*",
     "https://api.mistral.ai/*",
     "https://api.cerebras.ai/*",
-    "https://image.pollinations.ai/*",
-    "https://text.pollinations.ai/*"
+    "https://api-inference.huggingface.co/*"
   ],
   "background": {
     "service_worker": "background.js"

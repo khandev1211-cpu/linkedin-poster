@@ -13,16 +13,18 @@
     </header>
 
     <section id="settingsPanel" class="panel hidden">
-      <label>AI Provider</label>
+      <label>AI Provider (post text)</label>
       <select id="providerSelect">
-        <option value="groq">Groq (needs key)</option>
-        <option value="cerebras">Cerebras (needs key)</option>
+        <option value="groq">Groq (recommended, needs key)</option>
         <option value="mistral">Mistral (needs key)</option>
-        <option value="pollinations">Pollinations (free, no key)</option>
+        <option value="cerebras">Cerebras (needs key)</option>
       </select>
 
       <label>API Key</label>
-      <input id="apiKeyInput" type="password" placeholder="Not needed for Pollinations" />
+      <input id="apiKeyInput" type="password" placeholder="Paste your provider API key" />
+
+      <label>Hugging Face Token (for images)</label>
+      <input id="hfTokenInput" type="password" placeholder="hf_... free token from huggingface.co/settings/tokens" />
 
       <button id="saveSettings" class="primary-btn">Save Settings</button>
       <p id="settingsStatus" class="status"></p>

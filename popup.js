@@ -2,6 +2,7 @@ const settingsToggle = document.getElementById("settingsToggle");
 const settingsPanel = document.getElementById("settingsPanel");
 const providerSelect = document.getElementById("providerSelect");
 const apiKeyInput = document.getElementById("apiKeyInput");
+const hfTokenInput = document.getElementById("hfTokenInput");
 const saveSettingsBtn = document.getElementById("saveSettings");
 const settingsStatus = document.getElementById("settingsStatus");
 
@@ -23,10 +24,13 @@ function setStatus(el, text, kind) {
 }
 
 async function loadSettings() {
-  const { aiConfig } = await chrome.storage.local.get("aiConfig");
+  const { aiConfig, hfToken } = await chrome.storage.local.get(["aiConfig", "hfToken"]);
   if (aiConfig) {
-    providerSelect.value = aiConfig.provider || "pollinations";
+    providerSelect.value = aiConfig.provider || "groq";
     apiKeyInput.value = aiConfig.apiKey || "";
+  }
+  if (hfToken) {
+    hfTokenInput.value = hfToken;
   }
 }
 
@@ -37,13 +41,18 @@ settingsToggle.addEventListener("click", () => {
 saveSettingsBtn.addEventListener("click", async () => {
   const provider = providerSelect.value;
   const apiKey = apiKeyInput.value.trim();
+  const hfToken = hfTokenInput.value.trim();
 
-  if (provider !== "pollinations" && !apiKey) {
-    setStatus(settingsStatus, "This provider needs an API key.", "error");
+  if (!apiKey) {
+    setStatus(settingsStatus, "Please paste an API key for text generation.", "error");
+    return;
+  }
+  if (!hfToken) {
+    setStatus(settingsStatus, "Please paste a Hugging Face token for image generation.", "error");
     return;
   }
 
-  await chrome.storage.local.set({ aiConfig: { provider, apiKey } });
+  await chrome.storage.local.set({ aiConfig: { provider, apiKey }, hfToken });
   setStatus(settingsStatus, "Saved.", "success");
 });
 

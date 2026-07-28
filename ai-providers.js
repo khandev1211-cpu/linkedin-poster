@@ -90,17 +90,13 @@ async function callMistral(prompt, apiKey) {
   return data.choices?.[0]?.message?.content?.trim();
 }
 
-// Zero-key fallback. Lower quality but works with no signup at all.
-async function callPollinationsText(prompt) {
-  const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Pollinations text error: ${res.status}`);
-  return (await res.text()).trim();
-}
-
 async function generatePostText(githubContext, aiConfig) {
   const prompt = buildPrompt(githubContext);
   const { provider, apiKey } = aiConfig || {};
+
+  if (!apiKey) {
+    throw new Error("No API key set. Open Settings and add a Groq, Mistral, or Cerebras key.");
+  }
 
   switch (provider) {
     case "groq":
@@ -109,9 +105,8 @@ async function generatePostText(githubContext, aiConfig) {
       return callCerebras(prompt, apiKey);
     case "mistral":
       return callMistral(prompt, apiKey);
-    case "pollinations":
     default:
-      return callPollinationsText(prompt);
+      return callGroq(prompt, apiKey);
   }
 }
 

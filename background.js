@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 async function handleGeneratePost() {
-  const { aiConfig } = await chrome.storage.local.get("aiConfig");
+  const { aiConfig, hfToken } = await chrome.storage.local.get(["aiConfig", "hfToken"]);
 
   // Step 1: pull GitHub context (Khan repo + data science repos)
   const githubContext = await self.GithubModule.getGithubContext();
@@ -31,7 +31,7 @@ async function handleGeneratePost() {
   if (!postText) throw new Error("AI provider returned empty text");
 
   // Step 3: generate the accompanying image
-  const { blob, sourceUrl } = await self.ImageGenModule.generateImage(postText, githubContext);
+  const { blob } = await self.ImageGenModule.generateImage(postText, githubContext, hfToken);
 
   // Convert blob to a data URL so it can cross the message boundary to the popup
   const imageDataUrl = await blobToDataUrl(blob);
@@ -40,7 +40,6 @@ async function handleGeneratePost() {
     ok: true,
     postText,
     imageDataUrl,
-    imageSourceUrl: sourceUrl,
     githubContext
   };
 }
