@@ -11,10 +11,20 @@ const DS_KEYWORDS = [
   "prediction", "analysis", "notebook", "jupyter"
 ];
 
-async function ghFetch(path) {
-  const res = await fetch(`https://api.github.com${path}`, {
-    headers: { "Accept": "application/vnd.github+json" }
-  });
+async function ghFetch(path, token) {
+  const headers = { "Accept": "application/vnd.github+json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  let res;
+  try {
+    res = await fetch(`https://api.github.com${path}`, { headers });
+  } catch (networkErr) {
+    throw new Error(
+      `Network error reaching GitHub API (${path}): ${networkErr.message}. ` +
+      `Check your internet connection and that this extension has permission for api.github.com.`
+    );
+  }
+
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     throw new Error(`GitHub API ${path} failed: ${res.status} ${body.slice(0, 200)}`);
@@ -23,11 +33,11 @@ async function ghFetch(path) {
 }
 
 // Recent commits + README summary for the Khan repo
-async function getKhanRepoContext() {
-  const repo = await ghFetch(`/repos/${GITHUB_USER}/${KHAN_REPO}`);
+async function getKhanRepoContext(token) {
+  const repo = await ghFetch(`/repos/${GITHUB_USER}/${KHAN_REPO}`, token);
   let commits = [];
   try {
-    commits = await ghFetch(`/repos/${GITHUB_USER}/${KHAN_REPO}/commits?per_page=8`);
+    commits = await ghFetch(`/repos/${GITHUB_USER}/${KHAN_REPO}/commits?per_page=8`, token);
   } catch (e) {
     commits = [];
   }
@@ -49,8 +59,8 @@ async function getKhanRepoContext() {
 }
 
 // Repos on the account that look data-science related
-async function getDataScienceRepos() {
-  const repos = await ghFetch(`/users/${GITHUB_USER}/repos?sort=updated&per_page=100`);
+async function getDataScienceRepos(token) {
+  const repos = await ghFetch(`/users/${GITHUB_USER}/repos?sort=updated&per_page=100`, token);
 
   const matches = repos.filter(r => {
     const haystack = `${r.name} ${r.description || ""} ${r.language || ""}`.toLowerCase();
@@ -67,10 +77,10 @@ async function getDataScienceRepos() {
   }));
 }
 
-async function getGithubContext() {
+async function getGithubContext(token) {
   const [khan, dsRepos] = await Promise.all([
-    getKhanRepoContext().catch(err => ({ error: err.message })),
-    getDataScienceRepos().catch(err => ({ error: err.message }))
+    getKhanRepoContext(token).catch(err => ({ error: err.message })),
+    getDataScienceRepos(token).catch(err => ({ error: err.message }))
   ]);
   return { khan, dsRepos };
 }

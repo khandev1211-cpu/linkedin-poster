@@ -24,8 +24,17 @@ review before posting.
 3. **Image**: paste a free Hugging Face access token
    - Create one at huggingface.co/settings/tokens — "read" scope is enough,
      no payment info required
-4. Click "Save Settings"
-5. Click "Generate Post" — wait a few seconds (first image call may take
+4. **GitHub (optional but recommended)**: paste a Personal Access Token
+   - GitHub → Settings → Developer settings → Personal access tokens
+   - No special scopes needed for public repo data (a plain fine-grained
+     token with no permissions, or a classic token with no scopes checked,
+     both work for public data)
+   - Without this, GitHub allows only 60 requests/hour per IP address,
+     shared across anything else on your network — easy to hit by accident,
+     and the extension will show "Failed to fetch" / rate limit errors.
+     With a token: 5,000 requests/hour.
+5. Click "Save Settings"
+6. Click "Generate Post" — wait a few seconds (first image call may take
    10-30s if the model needs to "wake up" on Hugging Face's side; the
    extension retries automatically)
 5. Review/edit the text and image in the preview
@@ -52,10 +61,10 @@ Both feed into a single AI prompt that writes one post covering both.
   If LinkedIn redesigns the composer, the selectors in `content-script.js`
   (`findStartPostButton`, `findComposerEditor`, `findAddMediaButton`,
   `findPostButton`) are the first place to check and update.
-- **GitHub anonymous rate limit**: 60 requests/hour per IP, unauthenticated.
-  Fine for occasional manual use; if you hit it, wait an hour or add a
-  GitHub personal access token to `github.js` (`Authorization: token ...`
-  header) for a much higher limit.
+- **GitHub rate limit**: 60 requests/hour unauthenticated, 5,000/hour with
+  a Personal Access Token pasted into Settings (recommended — see setup
+  above). Hitting the unauthenticated limit can surface as a generic
+  "Failed to fetch" in the popup rather than a clear rate-limit message.
 - **Hugging Face cold starts**: if the image model hasn't been used
   recently, the first call can return a 503 while it loads. The extension
   retries up to 4 times with a short wait automatically — if it still

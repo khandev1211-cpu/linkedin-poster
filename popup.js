@@ -3,6 +3,7 @@ const settingsPanel = document.getElementById("settingsPanel");
 const providerSelect = document.getElementById("providerSelect");
 const apiKeyInput = document.getElementById("apiKeyInput");
 const hfTokenInput = document.getElementById("hfTokenInput");
+const githubTokenInput = document.getElementById("githubTokenInput");
 const saveSettingsBtn = document.getElementById("saveSettings");
 const settingsStatus = document.getElementById("settingsStatus");
 
@@ -24,13 +25,16 @@ function setStatus(el, text, kind) {
 }
 
 async function loadSettings() {
-  const { aiConfig, hfToken } = await chrome.storage.local.get(["aiConfig", "hfToken"]);
+  const { aiConfig, hfToken, githubToken } = await chrome.storage.local.get(["aiConfig", "hfToken", "githubToken"]);
   if (aiConfig) {
     providerSelect.value = aiConfig.provider || "groq";
     apiKeyInput.value = aiConfig.apiKey || "";
   }
   if (hfToken) {
     hfTokenInput.value = hfToken;
+  }
+  if (githubToken) {
+    githubTokenInput.value = githubToken;
   }
 }
 
@@ -42,6 +46,7 @@ saveSettingsBtn.addEventListener("click", async () => {
   const provider = providerSelect.value;
   const apiKey = apiKeyInput.value.trim();
   const hfToken = hfTokenInput.value.trim();
+  const githubToken = githubTokenInput.value.trim();
 
   if (!apiKey) {
     setStatus(settingsStatus, "Please paste an API key for text generation.", "error");
@@ -52,7 +57,7 @@ saveSettingsBtn.addEventListener("click", async () => {
     return;
   }
 
-  await chrome.storage.local.set({ aiConfig: { provider, apiKey }, hfToken });
+  await chrome.storage.local.set({ aiConfig: { provider, apiKey }, hfToken, githubToken });
   setStatus(settingsStatus, "Saved.", "success");
 });
 

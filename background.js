@@ -21,10 +21,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 async function handleGeneratePost() {
-  const { aiConfig, hfToken } = await chrome.storage.local.get(["aiConfig", "hfToken"]);
+  const { aiConfig, hfToken, githubToken } = await chrome.storage.local.get(["aiConfig", "hfToken", "githubToken"]);
 
   // Step 1: pull GitHub context (Khan repo + data science repos)
-  const githubContext = await self.GithubModule.getGithubContext();
+  const githubContext = await self.GithubModule.getGithubContext(githubToken);
 
   // Step 2: generate the post text
   const postText = await self.AiProvidersModule.generatePostText(githubContext, aiConfig);
