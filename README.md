@@ -70,10 +70,14 @@ Both feed into a single AI prompt that writes one post covering both.
   "Failed to fetch" in the popup rather than a clear rate-limit message.
 - **Hugging Face architecture**: HF retired their old
   `api-inference.huggingface.co` serverless endpoint. Image generation now
-  goes through `router.huggingface.co`, which routes to a partner provider
-  (this extension uses "together" + `black-forest-labs/FLUX.1-schnell`).
-  Your token needs the "Inference Providers" permission specifically —
-  see the link in setup step 3 above.
+  goes through `router.huggingface.co`, which routes to a partner provider.
+  Which providers actually serve a given model shifts over time on HF's
+  side, so this extension tries several candidates in order
+  (`fal-ai` → `together` → `replicate` → `nscale`) for
+  `black-forest-labs/FLUX.1-schnell` and automatically falls through to
+  the next one if a provider responds "model not supported." Your token
+  needs the "Inference Providers" permission — see the link in setup
+  step 3 above.
 - **Hugging Face cold starts**: the router can occasionally return a 503
   while a provider spins up. The extension retries up to 4 times
   automatically — if it still fails, click Regenerate a few seconds later.
