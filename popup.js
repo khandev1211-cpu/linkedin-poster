@@ -62,7 +62,7 @@ saveSettingsBtn.addEventListener("click", async () => {
 });
 
 async function generatePost() {
-  setStatus(generateStatus, "Fetching GitHub data, writing post, generating image…");
+  setStatus(generateStatus, "Fetching GitHub data, writing post, generating image… (image step may try a few options, up to ~30s)");
   previewArea.classList.add("hidden");
   generateBtn.disabled = true;
   regenerateBtn.disabled = true;

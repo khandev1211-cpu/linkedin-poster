@@ -77,11 +77,13 @@ Both feed into a single AI prompt that writes one post covering both.
 - **Hugging Face architecture**: HF retired their old
   `api-inference.huggingface.co` serverless endpoint. Image generation now
   goes through `router.huggingface.co`, which routes to a partner provider.
-  Which providers actually serve a given model shifts over time on HF's
-  side, so this extension tries several candidates in order
-  (`fal-ai` → `together` → `replicate` → `nscale`) for
-  `black-forest-labs/FLUX.1-schnell` and automatically falls through to
-  the next one if a provider responds "model not supported." Your token
+  Which providers actually serve which models shifts over time on HF's
+  side, so this extension tries a small matrix of models
+  (`FLUX.1-schnell` → `stable-diffusion-3.5-medium` → `stable-diffusion-xl-base-1.0`)
+  across several providers (`hf-inference` → `fal-ai` → `together` →
+  `replicate` → `nscale`), falling through automatically whenever one
+  combination responds "model not supported." This can take up to ~30
+  seconds in the worst case if many combinations are tried. Your token
   needs the "Inference Providers" permission — see the link in setup
   step 3 above.
 - **Hugging Face cold starts**: the router can occasionally return a 503

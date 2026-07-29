@@ -4,11 +4,20 @@
 // free HF access token with "Inference Providers" permission
 // (create one at https://huggingface.co/settings/tokens/new?ownUserPermissions=inference.serverless.write&tokenType=fineGrained).
 
-const HF_MODEL = "black-forest-labs/FLUX.1-schnell";
-// Providers known (per HF's own docs) to serve this model. Tried in order;
-// if one responds "model not supported by provider" we fall through to
-// the next, since HF's provider catalog shifts over time.
-const HF_PROVIDER_CANDIDATES = ["fal-ai", "together", "replicate", "nscale"];
+// Model candidates, tried in order. FLUX.1-schnell first (best quality,
+// Apache 2.0, but gated — needs one-time license click on HF's site).
+// SD 3.5 Medium and SDXL are widely-deployed fallbacks in case FLUX isn't
+// currently live on any provider for this token.
+const HF_MODEL_CANDIDATES = [
+  "black-forest-labs/FLUX.1-schnell",
+  "stabilityai/stable-diffusion-3.5-medium",
+  "stabilityai/stable-diffusion-xl-base-1.0"
+];
+
+// Providers known (per HF's own docs) to serve text-to-image models.
+// "hf-inference" is HF's own compute (successor to the old serverless
+// API) and is often the most reliably available for popular models.
+const HF_PROVIDER_CANDIDATES = ["hf-inference", "fal-ai", "together", "replicate", "nscale"];
 
 function buildImagePrompt(postText, githubContext) {
   const khanName = githubContext?.khan?.name || "Khan programming language";
@@ -20,10 +29,9 @@ function buildImagePrompt(postText, githubContext) {
   );
 }
 
-// The router can take a few seconds to route/cold-start a provider —
-// retry a handful of times on 503 per HF's own guidance. If a provider
-// doesn't actually serve this model (400 "not supported"), fall through
-// to the next candidate rather than failing outright.
+// Tries every (model, provider) combination in order until one works.
+// Falls through on "not supported"/404-style errors (wrong pairing);
+// surfaces immediately on auth/network errors since retrying won't help.
 async function generateImage(postText, githubContext, hfToken) {
   if (!hfToken) {
     throw new Error("No Hugging Face token set. Open Settings and add a free HF access token.");
@@ -32,30 +40,29 @@ async function generateImage(postText, githubContext, hfToken) {
   const prompt = buildImagePrompt(postText, githubContext);
   const errors = [];
 
-  for (const provider of HF_PROVIDER_CANDIDATES) {
-    try {
-      return await tryProvider(provider, prompt, hfToken);
-    } catch (err) {
-      errors.push(`${provider}: ${err.message}`);
-      // Only fall through on "not supported by this provider" style errors;
-      // anything else (auth, network) is worth surfacing immediately.
-      if (!/not supported|404/i.test(err.message)) {
-        throw new Error(`Hugging Face image error via ${provider}: ${err.message}`);
+  for (const model of HF_MODEL_CANDIDATES) {
+    for (const provider of HF_PROVIDER_CANDIDATES) {
+      try {
+        return await tryProvider(provider, model, prompt, hfToken);
+      } catch (err) {
+        errors.push(`${model} via ${provider}: ${err.message}`);
+        if (!/not supported|deprecated|no longer|410|404/i.test(err.message)) {
+          throw new Error(`Hugging Face image error (${model} via ${provider}): ${err.message}`);
+        }
       }
     }
   }
 
   throw new Error(
-    `No configured provider could serve ${HF_MODEL}. This model requires accepting its ` +
-    `license on the Hugging Face website first: https://huggingface.co/${HF_MODEL} ` +
-    `(look for "Agree and access repository"). If you've already done that, try again in a ` +
-    `minute — provider access can take a short time to propagate. Details: ${errors.join(" | ")}`
+    `No combination of model/provider worked. If you haven't already, accept the license at ` +
+    `https://huggingface.co/black-forest-labs/FLUX.1-schnell ("Agree and access repository"). ` +
+    `Details: ${errors.join(" | ")}`
   );
 }
 
-async function tryProvider(provider, prompt, hfToken) {
-  const url = `https://router.huggingface.co/${provider}/models/${HF_MODEL}`;
-  const maxAttempts = 4;
+async function tryProvider(provider, model, prompt, hfToken) {
+  const url = `https://router.huggingface.co/${provider}/models/${model}`;
+  const maxAttempts = 2;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     let res;
@@ -76,7 +83,7 @@ async function tryProvider(provider, prompt, hfToken) {
     }
 
     if (res.status === 503 && attempt < maxAttempts) {
-      await new Promise(r => setTimeout(r, 4000));
+      await new Promise(r => setTimeout(r, 2000));
       continue;
     }
 
@@ -86,7 +93,7 @@ async function tryProvider(provider, prompt, hfToken) {
     }
 
     const blob = await res.blob();
-    return { blob, promptUsed: prompt, sourceModel: HF_MODEL, provider };
+    return { blob, promptUsed: prompt, sourceModel: model, provider };
   }
 
   throw new Error("model did not become ready in time (503 retries exhausted)");
