@@ -45,7 +45,12 @@ async function generateImage(postText, githubContext, hfToken) {
     }
   }
 
-  throw new Error(`No configured provider could serve ${HF_MODEL}. Tried: ${errors.join(" | ")}`);
+  throw new Error(
+    `No configured provider could serve ${HF_MODEL}. This model requires accepting its ` +
+    `license on the Hugging Face website first: https://huggingface.co/${HF_MODEL} ` +
+    `(look for "Agree and access repository"). If you've already done that, try again in a ` +
+    `minute — provider access can take a short time to propagate. Details: ${errors.join(" | ")}`
+  );
 }
 
 async function tryProvider(provider, prompt, hfToken) {

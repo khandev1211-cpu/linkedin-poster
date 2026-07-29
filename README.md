@@ -36,8 +36,14 @@ review before posting.
      shared across anything else on your network — easy to hit by accident,
      and the extension will show "Failed to fetch" / rate limit errors.
      With a token: 5,000 requests/hour.
-5. Click "Save Settings"
-6. Click "Generate Post" — wait a few seconds (first image call may take
+5. **One-time step for images**: `black-forest-labs/FLUX.1-schnell` (the
+   image model this extension uses) is a "gated" model — visit
+   https://huggingface.co/black-forest-labs/FLUX.1-schnell while logged
+   into the same HF account as your token, and click "Agree and access
+   repository". This is a one-time click; after that your token can use
+   the model through any provider indefinitely.
+6. Click "Save Settings"
+7. Click "Generate Post" — wait a few seconds (first image call may take
    10-30s if the model needs to "wake up" on Hugging Face's side; the
    extension retries automatically)
 5. Review/edit the text and image in the preview
