@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GitHub → LinkedIn Poster",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Generates a professional LinkedIn post from your GitHub activity (Khan lang + data science repos) with an AI image, and posts it for you on click.",
   "permissions": ["storage", "scripting", "activeTab"],
   "host_permissions": [
@@ -10,7 +10,7 @@
     "https://api.groq.com/*",
     "https://api.mistral.ai/*",
     "https://api.cerebras.ai/*",
-    "https://api-inference.huggingface.co/*"
+    "https://router.huggingface.co/*"
   ],
   "background": {
     "service_worker": "background.js"

@@ -21,9 +21,12 @@ review before posting.
    - Groq: console.groq.com → API Keys
    - Mistral: console.mistral.ai → API Keys
    - Cerebras: cloud.cerebras.ai → API Keys
-3. **Image**: paste a free Hugging Face access token
-   - Create one at huggingface.co/settings/tokens — "read" scope is enough,
-     no payment info required
+3. **Image**: paste a free Hugging Face access token with **"Inference
+   Providers"** permission
+   - Create one directly at:
+     https://huggingface.co/settings/tokens/new?ownUserPermissions=inference.serverless.write&tokenType=fineGrained
+   - (A plain default token without this permission will fail with a 401/403)
+   - No payment info required — HF's router has a free tier
 4. **GitHub (optional but recommended)**: paste a Personal Access Token
    - GitHub → Settings → Developer settings → Personal access tokens
    - No special scopes needed for public repo data (a plain fine-grained
@@ -65,10 +68,15 @@ Both feed into a single AI prompt that writes one post covering both.
   a Personal Access Token pasted into Settings (recommended — see setup
   above). Hitting the unauthenticated limit can surface as a generic
   "Failed to fetch" in the popup rather than a clear rate-limit message.
-- **Hugging Face cold starts**: if the image model hasn't been used
-  recently, the first call can return a 503 while it loads. The extension
-  retries up to 4 times with a short wait automatically — if it still
-  fails, just click Regenerate a few seconds later.
+- **Hugging Face architecture**: HF retired their old
+  `api-inference.huggingface.co` serverless endpoint. Image generation now
+  goes through `router.huggingface.co`, which routes to a partner provider
+  (this extension uses "together" + `black-forest-labs/FLUX.1-schnell`).
+  Your token needs the "Inference Providers" permission specifically —
+  see the link in setup step 3 above.
+- **Hugging Face cold starts**: the router can occasionally return a 503
+  while a provider spins up. The extension retries up to 4 times
+  automatically — if it still fails, click Regenerate a few seconds later.
 - **Pollinations text API is no longer usable free**: they added a Pollen
   credit/billing system (402 errors on the free tier), which is why this
   extension uses Groq/Mistral/Cerebras for text instead.
