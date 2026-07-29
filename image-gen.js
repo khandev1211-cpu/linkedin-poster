@@ -4,14 +4,16 @@
 // free HF access token with "Inference Providers" permission
 // (create one at https://huggingface.co/settings/tokens/new?ownUserPermissions=inference.serverless.write&tokenType=fineGrained).
 
-// Model candidates, tried in order. FLUX.1-schnell first (best quality,
-// Apache 2.0, but gated — needs one-time license click on HF's site).
-// SD 3.5 Medium and SDXL are widely-deployed fallbacks in case FLUX isn't
-// currently live on any provider for this token.
+// Model candidates, tried in order. These are HF's own currently
+// documented "recommended models" for the text-to-image task (see
+// https://huggingface.co/docs/inference-providers/en/tasks/text-to-image)
+// — i.e. models HF itself confirms are actively deployed on providers
+// right now, rather than models we're guessing are still live.
 const HF_MODEL_CANDIDATES = [
-  "black-forest-labs/FLUX.1-schnell",
-  "stabilityai/stable-diffusion-3.5-medium",
-  "stabilityai/stable-diffusion-xl-base-1.0"
+  "black-forest-labs/FLUX.1-Krea-dev",
+  "Qwen/Qwen-Image",
+  "ByteDance/Hyper-SD",
+  "black-forest-labs/FLUX.1-schnell"
 ];
 
 // Providers known (per HF's own docs) to serve text-to-image models.
@@ -54,8 +56,11 @@ async function generateImage(postText, githubContext, hfToken) {
   }
 
   throw new Error(
-    `No combination of model/provider worked. If you haven't already, accept the license at ` +
-    `https://huggingface.co/black-forest-labs/FLUX.1-schnell ("Agree and access repository"). ` +
+    `No combination of model/provider worked. Some of these models are "gated" and require ` +
+    `accepting a license on Hugging Face's website first (visit the model page while logged ` +
+    `into the same account as your token and click "Agree and access repository"): ` +
+    `https://huggingface.co/black-forest-labs/FLUX.1-Krea-dev and ` +
+    `https://huggingface.co/black-forest-labs/FLUX.1-schnell. ` +
     `Details: ${errors.join(" | ")}`
   );
 }
